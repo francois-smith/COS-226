@@ -25,9 +25,9 @@ class PetersonLock implements Lock {
         flag[i] = false;
     }
 
-    //---------------------------------Methods needed for implementing Lock-------------------------------------------
+    //---------------------------------Methods needed for implementing Lock interface-------------------------------------------
     public void lockInterruptibly(){} 
-    public boolean tryLock() {return flag[0];}
-    public boolean tryLock(long time, TimeUnit unit){return flag[0];}  
+    public boolean tryLock() {return false;}
+    public boolean tryLock(long time, TimeUnit unit){return false;}  
     public Condition newCondition(){return newCondition();} 
 }
