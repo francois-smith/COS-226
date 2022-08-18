@@ -8,7 +8,7 @@ import java.util.concurrent.locks.Lock;
 public class Bakery implements Lock
 {
 	//member variables
-	private volatile int n;
+	private int n;
 	private volatile int[] label;
 	private volatile boolean[] flag;
 
@@ -35,37 +35,31 @@ public class Bakery implements Lock
 	public void lock()
 	{
 		int thread = Integer.parseInt(Thread.currentThread().getName().substring(7));
-
 		flag[thread] = true;
-		label[thread] = Largest(label);
+		label[thread] = findMaximumElement(label)+1;
 
 		for (int k = 0; k < n; k++) {
 			while ((k != thread) && flag[k] && ((label[k] < label[thread]) || ((label[k] == label[thread]) && k < thread))) {}
 		}
 	}
-
+	
 	/**
 	 * Helper method to find the largest label in array.
-	 * @param arr - Array to find largest label in.
+	 * @param labels - Array to find largest label in.
 	 * @return - The index of the largest label.
 	 */
-	 */
-	private int Largest(int[] arr)
+	private int findMaximumElement(int[] labels) 
 	{
-        int i;
-        int max = arr[0];
-         
-        // Traverse array elements from second and compare every element with current max
-        for (i = 1; i < arr.length; i++)
+        int maxValue = Integer.MIN_VALUE;
+        for (int label_: labels) 
 		{
-			if (arr[i] > max)
+            if (label_ > maxValue) 
 			{
-				max = arr[i];
-			}  
-		}
-             
-        return max;
-	}
+                maxValue = label_;
+            }
+        }
+        return maxValue;
+    }
 
 	/**
 	 * Get thread trying to unlock the filter and reset variable.
@@ -98,3 +92,4 @@ public class Bakery implements Lock
 	}
 
 }
+
