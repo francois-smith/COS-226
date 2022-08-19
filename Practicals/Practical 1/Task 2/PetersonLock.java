@@ -9,9 +9,9 @@ class PetersonLock implements Lock {
     private volatile int victim;
 
     public PetersonLock(){}
-
+    
     public void lock(){
-        System.out.println(Thread.currentThread().getName()+ " is locking:");
+        //System.out.println(Thread.currentThread().getName()+ " is locking:");
         int i = Integer.parseInt(Thread.currentThread().getName().substring(7)) - 1;
         int j = 1 - i;
         flag[j] = true;
@@ -20,7 +20,7 @@ class PetersonLock implements Lock {
     }
 
     public void unlock(){
-        System.out.println(Thread.currentThread().getName()+ " is unlocking:");
+        //System.out.println(Thread.currentThread().getName()+ " is unlocking:");
         int i = Integer.parseInt(Thread.currentThread().getName().substring(7)) - 1;
         flag[i] = false;
     }

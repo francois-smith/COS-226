@@ -16,7 +16,7 @@ public class Venue
 		try
 		{
 			Transport currentThread = (Transport)Thread.currentThread();
-			System.out.println("Bus " + Thread.currentThread().getName() + " is dropping-off: " + currentThread.getLoadNumber());
+			System.out.println("Bus " + Thread.currentThread().getName() + " is dropping-off: Load " + currentThread.getLoadNumber());
 
 			//wait random amount of time
 			int sleepTime = (int)(Math.random() * ((1000 - 200) + 1)) + 200;

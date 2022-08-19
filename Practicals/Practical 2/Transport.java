@@ -1,26 +1,25 @@
 public class Transport extends Thread 
 {
     private Venue destination;
-	private String loadNumber;
+	private int loadNumber;
 
 	/**
 	 * Constuctor for the class.
 	 * @param dest - Venue object to drop off the load.
 	 * @param loadNumber - The load number to drop off(Thread Member Variable).
 	 */
-	public Transport(Venue dest, String loadNumber)
+	public Transport(Venue dest)
 	{
-		this.loadNumber = loadNumber;
 		this.destination = dest;
 	}
 
+
 	/**
-	 * Helper function to return the load number of the thread.
-	 * @return - The load number of the thread.
+	 * Returns the current Load Number
 	 */
-	public String getLoadNumber()
+	public int getLoadNumber()
 	{
-		return loadNumber;
+		return this.loadNumber;
 	}
 
 	/**
@@ -29,20 +28,24 @@ public class Transport extends Thread
 	@Override
 	public void run()
 	{
-		try
+		for(int i = 0; i < 5; i++)
 		{
-			//Output intentions
-			System.out.println("Bus " + currentThread().getName() + " is waiting to drop off: " + loadNumber);
+			try
+			{
+				this.loadNumber = i+1;
+				//Output intentions
+				System.out.println("Bus " + currentThread().getName() + " is waiting to drop off: Load " + loadNumber);
 
-			//Drop off passengers
-			destination.dropOff();
+				//Drop off passengers
+				destination.dropOff();
 
-			//Leaves drop off location
-			System.out.println("Bus " + currentThread().getName() + " has left: " + loadNumber);
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
+				//Leaves drop off location
+				System.out.println("Bus " + currentThread().getName() + " has left: Load " + loadNumber);
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+			}
 		}
 	}
 }
