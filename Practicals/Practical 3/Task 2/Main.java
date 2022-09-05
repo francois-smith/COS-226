@@ -7,15 +7,13 @@ public class Main {
 
         //Arrays for holding execution time based on thread count
         int index = 0;
-        int[] numThreads = new int[6];
-        int[] TASTime = new int[6];
-        int[] TTASTime = new int[6];
-        int[] BackoffTime = new int[6];
+        int[] threadcount = {1, 2, 4, 5, 8, 10, 14, 18, 22, 26, 30, 35};
 
-        //Loop through the number of threads increasing gradualy
-        for(int i = 5; i < 34; i*=1.5){
-            numThreads[index] = i;
+        int[] TASTime = new int[threadcount.length];
+        int[] TTASTime = new int[threadcount.length];
+        int[] BackoffTime = new int[threadcount.length];
 
+        for (int i : threadcount) {
             //Create an array of threads
             TestThread[] threads = new TestThread[i];
             for(int j = 0; j < i; j++){
@@ -45,7 +43,7 @@ public class Main {
             index++;
         }
 
-        System.out.print("Number of threads: "); printArray(numThreads);
+        System.out.print("Number of threads: "); printArray(threadcount);
         System.out.println("--------------------------------");
         System.out.print("TASLock: "); printArray(TASTime);
         System.out.print("TTASLock: "); printArray(TTASTime);

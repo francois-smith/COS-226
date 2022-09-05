@@ -8,7 +8,8 @@ public abstract class ConsensusProtocol<T> implements Consensus<T>
 
 	public void propose(T value){
 		System.out.println(Thread.currentThread().getName() + " proposed " + value);
-		proposed[(int)Thread.currentThread().getId()] = value;
+		int thread = Integer.parseInt(Thread.currentThread().getName().substring(7));
+		proposed[thread] = value;
 	}
 
 	abstract public void decide();

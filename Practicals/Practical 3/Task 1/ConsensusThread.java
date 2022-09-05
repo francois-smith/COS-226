@@ -26,7 +26,6 @@ public class ConsensusThread extends Thread
 
 			// decide on a value
 			consensus.decide();
-			System.out.println(Thread.currentThread().getName() + " decided on " + decision);
 
 			// wait for a random time again
 			sleepTime = randomNumber(50, 100);
