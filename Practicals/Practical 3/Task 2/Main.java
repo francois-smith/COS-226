@@ -7,7 +7,7 @@ public class Main {
 
         //Arrays for holding execution time based on thread count
         int index = 0;
-        int[] threadcount = {1, 2, 4, 5, 8, 10, 14, 18, 22, 26, 30, 35};
+        int[] threadcount = {5, 8, 10, 14, 18, 22, 26, 30};
 
         int[] TASTime = new int[threadcount.length];
         int[] TTASTime = new int[threadcount.length];
