@@ -10,6 +10,14 @@ public class Marshal extends Thread {
 	@Override
 	public void run()
 	{
-
+		for(int i = 0; i < 5; i++)
+		{
+			try{
+				vs.castBallot(i);
+			}
+			catch(InterruptedException e){
+				e.printStackTrace();
+			}
+		}
 	}
 }
