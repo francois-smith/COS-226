@@ -10,24 +10,24 @@ public class MCSQueue implements Lock
         volatile QNode next = null;
         volatile QNode pred = null;
         volatile boolean locked = false;
-        volatile int person;
         Thread marshal;
 
-        public void setPerson(int i){
-            person = i;
+        QNode(){
+            this.marshal = Thread.currentThread();
         }
 
-        public void setMarshal(Thread t){
-            marshal = t;
+        public String getMarshal(){
+            return this.marshal.getName().substring(this.marshal.getName().length() - 1);
         }
     }
 
-    private volatile AtomicReference<QNode> tail = new AtomicReference<>(null);
+    private volatile AtomicReference<QNode> tail;
     ThreadLocal<QNode> node;
-    private int person = 0;
+    private int[] person = {0,0,0,0,0};
 
     public MCSQueue()
     {
+        tail = new AtomicReference<QNode>(null);
         node = new ThreadLocal<QNode>()
         {
             protected QNode initialValue()
@@ -40,9 +40,7 @@ public class MCSQueue implements Lock
     public void lock()
     {
         QNode node = this.node.get();
-        node.setPerson(person++);
-        node.setMarshal(Thread.currentThread());
-        System.out.println(node.marshal.getName() + " with person " + node.person + " entered the voting station.");
+        person[Integer.parseInt(node.getMarshal())]++;
 
         QNode pred = tail.getAndSet(node);
         if (pred != null)
@@ -52,29 +50,38 @@ public class MCSQueue implements Lock
             node.pred = pred;
             while (node.locked){}
         }
-
-        System.out.println(node.marshal.getName() + " with person " + node.person + " cast a vote.");
     }
 
     public void unlock()
     {
-        QNode node = tail.get();
-        person--;
+        QNode node = this.node.get();
         if (node.next == null)
         {
             if (tail.compareAndSet(node, null))
             {
-                printQueue();
                 return;
             }
             while (node.next == null){}
         }
-        node.next.locked = false;
+
+        QNode next = node.next;
+        next.locked = false;
         node.next = null;
         node.pred = null;
-        
-        System.out.println(node.marshal.getName() + " with person " + node.person + " left the voting station.");
-        printQueue();
+
+        //print queue
+        QNode temp = tail.get();
+        if(temp != null){
+            System.out.print("  QUEUE: ");
+            //output with arrow except last one
+            while(temp.pred != null){
+                System.out.print("{" + temp.marshal.getName() + ":Person-" + person[Integer.parseInt(temp.getMarshal())] + "} -> ");
+                temp = temp.pred;
+            }
+            //output last one
+            System.out.println("{" + temp.marshal.getName() + ":Person-" + person[Integer.parseInt(temp.getMarshal())] + "}");
+        }
+        System.out.println();
     }
 
     public void lockInterruptibly() throws InterruptedException
@@ -96,16 +103,4 @@ public class MCSQueue implements Lock
 	{
 		throw new UnsupportedOperationException();
 	}
-
-    private void printQueue(){
-        System.out.print("Queue: ");
-        QNode node = tail.get();
-        if(node != null){
-            while(node.next != null){
-                System.out.println("{"+node.marshal.getName() + " : Person " + node.person+"} ->");
-                node = node.next;
-            }
-            System.out.println("{"+node.marshal.getName() + " : " + node.person+"}");
-        }
-    }
 }

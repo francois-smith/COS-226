@@ -12,7 +12,7 @@ public class Marshal extends Thread {
 	{
 		for(int i = 0; i < 5; i++)
 		{
-			vs.castBallot();
+			vs.castBallot(i);
 		}
 	}
 }

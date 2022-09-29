@@ -7,8 +7,9 @@ public class VotingStation {
 		l = new MCSQueue();
 	}
 
-	public void castBallot()
-	{
+	public void castBallot(int i)
+	{      
+		i++;
 		l.lock();
 		try{
 			try{
@@ -18,9 +19,13 @@ public class VotingStation {
 			catch(InterruptedException e){
 				e.printStackTrace();
 			}
+			System.out.println(Thread.currentThread().getName() + " with person " + i + " entered the voting station.");
+
 		}
 		finally{
 			l.unlock();
+			System.out.println(Thread.currentThread().getName() + " with person " + i + " cast a vote.");
+			System.out.println(Thread.currentThread().getName() + " with person " + i + " left the voting station.");
 		}
 	}
 
