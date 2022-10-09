@@ -1,55 +1,60 @@
 
 public class Security extends Thread {
-    private int[] person = new int[5];
+    
     private CoarseList gallery;
     private int id = 0;
-    private long times[] = new long[20];
-    private String tickets[] = new String[20];
-    private volatile int peopleLeft = 10;
+    private long times[] = new long[10];
+    private String tickets[] = new String[10];
+
+
+    private volatile int peopleLeft = 0;
+    private volatile int peopleIn = 0;
 
     public Security(CoarseList gallery) {
         this.gallery = gallery;
     }
 
     public void run() {
-        while(peopleLeft > 0) {
-            try {
-                Thread.sleep(200);
-            } 
-            catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        long time = System.currentTimeMillis();
 
-            int ticketNumber = person[getThreadNumber()]++;
-            String ticket = "Entrance" + getThreadNumber() + "-" + ticketNumber;
-            long time = randomNumber(100, 1000);
-            if(peopleLeft > 0 && gallery.add(ticket, time)) {
-                times[id] = System.currentTimeMillis() + time;
-                tickets[id] = ticket;
-                id++;
-                System.out.println(Thread.currentThread().getName() + ": added (P-" + ticketNumber + ", " + time + "ms)");
+        while(peopleLeft < 10) {
+            if(System.currentTimeMillis() - time > 200) {
+                String ticket = "Entrance" + getThreadNumber() + "-" + id;
+                long personTime = randomNumber(100, 1000);
+                if(gallery.add(ticket, personTime)) {
+                    peopleIn++;
+                    peopleLeft++;
+                    times[id] = System.currentTimeMillis() + personTime;
+                    tickets[id] = ticket;
+                    id++;
+                    System.out.println(Thread.currentThread().getName() + ": added (P-" + id + ", " + personTime + "ms)");
+                }
+                else{
+                    return;
+                }
+                time = System.currentTimeMillis();
             }
             else{
-                return;
-            }
-
-            for(int j = 0; j < 10; j++){
-                if(times[j] != 0 && times[j] < System.currentTimeMillis()){
-                    ticket = tickets[j];
-                    if(gallery.remove(ticket)){
-                        peopleLeft--;
-                        times[j] = 0;
+                for(int j = 0; j < 10; j++){
+                    if(times[j] != 0 && times[j] < System.currentTimeMillis()){
+                        String ticket = tickets[j];
+                        if(gallery.remove(ticket)){
+                            peopleIn--;
+                            times[j] = 0;
+                        }
                     }
                 }
             }
         }
 
-        //clean rest of items
-        for(int j = 0; j < 10; j++){
-            if(times[j] != 0){
-                String ticket = tickets[j];
-                if(gallery.remove(ticket)){
-                    times[j] = 0;
+        while(peopleIn > 0){
+            for(int j = 0; j < 10; j++){
+                if(times[j] != 0 && times[j] < System.currentTimeMillis()){
+                    String ticket = tickets[j];
+                    if(gallery.remove(ticket)){
+                        peopleIn--;
+                        times[j] = 0;
+                    }
                 }
             }
         }

@@ -61,16 +61,16 @@ public class CoarseList {
             String list = "";
             while(temp.next != null){
                 if(getThreadNumber().equals(temp.getEntrance())){
-                    long timeLeft = System.currentTimeMillis() - temp.startTime;
+                    long timeLeft =  System.currentTimeMillis() - temp.startTime;
                     list += "(P-" + temp.getPerson() + "," + timeLeft + "ms), ";
                 } 
                 temp = temp.next;
             }
-            //remove last comma
             if(list.length() > 0){
                 list = list.substring(0, list.length() - 2);
+                System.out.println(Thread.currentThread().getName() + ":" + list);
             }
-            System.out.println(Thread.currentThread().getName() + ":" + list);
+            
             lock.unlock();
         }
     }
