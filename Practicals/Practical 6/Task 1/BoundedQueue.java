@@ -1,53 +1,100 @@
-//Design a bounded lock-based queue implementation using an array instead of a linked list.
-// Allow parallelism by using two separate locks for head and tail.
-
-import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public class BoundedQueue<T> {
-    private final Lock headLock = new ReentrantLock();
-    private final Lock tailLock = new ReentrantLock();
-    private final T[] items;
-    private int head, tail, count;
+public class BoundedQueue {
+    ReentrantLock enqLock, deqLock;
+    Condition notEmptyCondition, notFullCondition;
+    AtomicInteger size;
+    int capacity;
+    int[] array;
+    volatile int head, tail;
 
     public BoundedQueue(int capacity) {
-        items = (T[]) new Object[capacity];
+        this.capacity = capacity;
+        head = tail = 0;
+        size = new AtomicInteger(0);
+        array = new int[capacity];
+        enqLock = new ReentrantLock();
+        deqLock = new ReentrantLock();
+        notEmptyCondition = deqLock.newCondition();
+        notFullCondition = enqLock.newCondition();
     }
 
-    public void enqueue(T item) throws InterruptedException {
-        tailLock.lock();
+    public void enqueue(int x) throws InterruptedException {
+        boolean mustWakeDequeuers = false;
+        enqLock.lock(); 
         try{
-            while (count == items.length) {
-                tailLock.unlock();
-                Thread.sleep(100);
-                tailLock.lock();
+            while (size.get() == capacity) notFullCondition.await();
+            array[tail] = x;
+            tail = (tail + 1) % capacity;
+
+            synchronized (System.out){
+                System.out.println("Enqueued " + x);
+                if(size.get() > 0){
+                    System.out.print("Queue: ");
+                    String output = "";
+                    for (int i = 0; i < size.get(); i++) {
+                        output += " ["+array[(head + i) % capacity] + "] ->";
+                    }
+                    output = output.substring(0, output.length() - 2);
+                    System.out.println(output);
+                }
             }
-            items[tail] = item;
-            tail = (tail + 1) % items.length;
-            ++count;
-            System.out.println("Enqueued: "+item);
+            
+            if (size.getAndIncrement() == 0) mustWakeDequeuers = true;
         }
-        finally {
-            tailLock.unlock();
+        finally{
+            enqLock.unlock();
+        }
+
+        if (mustWakeDequeuers) {
+            deqLock.lock();
+            try{
+                notEmptyCondition.signalAll();
+            }
+            finally{
+                deqLock.unlock();
+            }
         }
     }
 
-    public T dequeue() throws InterruptedException {
-        T item;
-        headLock.lock();
-        try {
-            while (count == 0) {
-                headLock.unlock();
-                Thread.sleep(10);
-                headLock.lock();
+    public int dequeue() throws InterruptedException {
+        int result;
+        boolean mustWakeEnqueuers = false;
+        deqLock.lock();
+        try{
+            while (size.get() == 0) notEmptyCondition.await();
+            result = array[head];
+            head = (head + 1) % capacity;
+            if (size.getAndDecrement() == capacity) mustWakeEnqueuers = true;
+            synchronized (System.out){
+                System.out.println("Dequeued " + result);
+                if(size.get() > 0){
+                    //[item] ->
+                    System.out.print("Queue: ");
+                    String output = "";
+                    for (int i = 0; i < size.get(); i++) {
+                        output += " ["+array[(head + i) % capacity] + "] ->";
+                    }
+                    output = output.substring(0, output.length() - 2);
+                    System.out.println(output);
+                }
             }
-            item = items[head];
-            head = (head + 1) % items.length;
-            --count;
-        } 
-        finally {
-            headLock.unlock();
         }
-        return item;
+        finally{
+            deqLock.unlock();
+        }
+
+        if (mustWakeEnqueuers) {
+            enqLock.lock();
+            try{
+                notFullCondition.signalAll();
+            }
+            finally{
+                enqLock.unlock();
+            }
+        }
+        return result;
     }
 }
