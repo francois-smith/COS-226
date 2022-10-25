@@ -32,7 +32,7 @@ public class Vehicle extends Thread{
     public void run(){
         while(true){
             Intersection intersection = roads.getIntersection(path[pathIndex]);
-            System.out.println(intersection.peek(this.getVehicleId()));
+            //System.out.println(intersection.peek(0));
             if(intersection.peek(this.getVehicleId()) && intersection.trafficLight.state == TrafficLight.State.GREEN){
                 try{
                     intersection.dequeue();

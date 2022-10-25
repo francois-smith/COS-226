@@ -24,6 +24,11 @@ public class Roads{
         addRoad(intersection2, intersection3);
         addRoad(intersection3, intersection4);
         addRoad(intersection4, intersection1);
+
+
+        for(Intersection intersection : roads.keySet()){
+            intersection.getTrafficLight().start();
+        }
     }
 
     public void addVehicle(Vehicle vehicle){

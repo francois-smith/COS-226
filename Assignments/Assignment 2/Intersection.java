@@ -1,6 +1,3 @@
-//Basic bounded queue
-//Need a traffic light class variable
-
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -36,12 +33,14 @@ public class Intersection {
             }
             
             Node node = new Node(vehicle);
-            tail.next = tail; tail = node;
+            tail.next = node;
+            tail = tail.next;
 
             if(size.getAndIncrement() == 0) mustWakeDequeuers = true;
         } 
         finally {
             enqLock.unlock();
+            System.out.println("Vehicle " + vehicle.getId() + " has entered intersection " + id);
         }
         if(mustWakeDequeuers) {
             deqLock.lock();
@@ -85,12 +84,11 @@ public class Intersection {
     }
 
     public boolean peek(int id){
-        if(head.next == null){
-            return false;
+        if(head.next != null) System.out.println("Vehicle " + head.next.vehicle.getVehicleId() + " is at the head of the queue");
+        if(head.next != null && head.next.vehicle.getVehicleId() == id){
+            return true;
         }
-        else{
-            return head.next.vehicle.getVehicleId() == id;
-        }
+        return false;
     }
 
     public int getId() {
