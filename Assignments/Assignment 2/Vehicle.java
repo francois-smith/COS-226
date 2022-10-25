@@ -5,7 +5,7 @@ public class Vehicle extends Thread{
     private int pathIndex = 0;
     public int[] path;
     private Roads roads;
-    private Brand brand;
+    public Brand brand;
 
     //enum of car brands
     public enum Brand {
@@ -26,24 +26,39 @@ public class Vehicle extends Thread{
         this.roads = roads;
         this.path = generatePath();
         this.brand = Brand.values()[(int)(Math.random() * Brand.values().length)];
-        run();
     }
 
     public void run(){
         while(true){
             Intersection intersection = roads.getIntersection(path[pathIndex]);
-            //System.out.println(intersection.peek(0));
             if(intersection.peek(this.getVehicleId()) && intersection.trafficLight.state == TrafficLight.State.GREEN){
                 try{
                     intersection.dequeue();
+                    synchronized(System.out){
+                        System.out.println("Vehicle " + id + " | " + brand + " | " + "just passed intersection " + intersection.id);
+                        roads.printGraph();
+                    }
                 }
                 catch(InterruptedException e){
                     e.printStackTrace();
                 }
-                pathIndex++;
-                System.out.println("Vehicle " + id + " of type " + brand + " has moved to intersection " + path[pathIndex]);
+                pathIndex++; 
                 if(pathIndex == path.length){
+                    synchronized(System.out){
+                        System.out.println("Vehicle " + id + " | " + brand + " | has reached its destination");
+                    }
                     break;
+                }
+                else{
+                    try{
+                        roads.getIntersection(path[pathIndex]).enqueue(this);
+                        synchronized(System.out){
+                            System.out.println("Vehicle " + id + " | " + brand + " | " + "is now waiting at intersection " + pathIndex);
+                        }
+                    }
+                    catch(InterruptedException e){
+                        e.printStackTrace();
+                    }
                 }
             }
         }

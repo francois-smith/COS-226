@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Intersection {
     ReentrantLock enqLock, deqLock;
     Condition notEmptyCondition, notFullCondition;
-    AtomicInteger size;
+    public AtomicInteger size;
     volatile Node head, tail;
     int capacity;
     public int id;
@@ -40,7 +40,6 @@ public class Intersection {
         } 
         finally {
             enqLock.unlock();
-            System.out.println("Vehicle " + vehicle.getId() + " has entered intersection " + id);
         }
         if(mustWakeDequeuers) {
             deqLock.lock();
@@ -84,7 +83,6 @@ public class Intersection {
     }
 
     public boolean peek(int id){
-        if(head.next != null) System.out.println("Vehicle " + head.next.vehicle.getVehicleId() + " is at the head of the queue");
         if(head.next != null && head.next.vehicle.getVehicleId() == id){
             return true;
         }
@@ -97,6 +95,23 @@ public class Intersection {
 
     public TrafficLight getTrafficLight() {
         return trafficLight;
+    }
+
+    //print all vehicles in the queue
+    public void printQueue() {
+        synchronized(System.out){
+            Node node = head.next;
+            if(node == null) return;
+            //print out brands in line for each intersection
+            System.out.print("Intersection " + id + ": ");
+            String output = "";
+            while(node != null) {
+                output += "id: "+node.vehicle.getVehicleId() + "(" + node.vehicle.brand + ") | ";
+                node = node.next;
+            }
+            output = output.substring(0, output.length() - 3);
+            System.out.println(output);
+        }
     }
 
     protected class Node {

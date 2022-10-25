@@ -5,6 +5,7 @@ import java.util.LinkedList;
 
 public class Roads{
     private Map<Intersection, List<Intersection>> roads = new HashMap<>();
+    public List<Vehicle> vehicles = new LinkedList<>();
 
     public Roads(){
         //random capacity for each intersection
@@ -35,6 +36,7 @@ public class Roads{
         Intersection intersection = getIntersection(vehicle.path[0]);
         try{
             intersection.enqueue(vehicle);
+            vehicles.add(vehicle);
         }
         catch(InterruptedException e){
             e.printStackTrace();
@@ -64,16 +66,35 @@ public class Roads{
         }
         return null;
     }
-    
+
+    public void stopLights(){
+        for(Intersection intersection : roads.keySet()){
+            intersection.getTrafficLight().stopLight();
+        }
+    }
     
     public void printGraph(){
         synchronized(System.out){
-            for(Intersection source : roads.keySet()){
-                List<Intersection> neighbours = roads.get(source);
-                for(Intersection destination : neighbours){
-                    System.out.println(source + " is connected to " + destination);
+            System.out.println("");
+            
+            boolean hasCars = false;
+            for(Intersection intersection : roads.keySet()){
+                if(intersection.size.get() > 0){
+                    hasCars = true;
+                    break;
                 }
             }
+            
+            if(hasCars){
+                System.out.println("Cars on the road: ");
+                for(Intersection intersection : roads.keySet()){
+                    intersection.printQueue();
+                }
+                System.out.println("");
+            }
+            else{
+                System.out.println("No cars on road left");
+            }           
         }
     }
 }
